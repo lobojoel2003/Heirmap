@@ -47,7 +47,7 @@ jobs:
         run: pnpm install --frozen-lockfile
       - if: steps.pages.outputs.enabled == 'true'
         run: pnpm --filter @heirmap/web build
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         if: steps.pages.outputs.enabled == 'true'
         with:
           path: apps/web/dist
