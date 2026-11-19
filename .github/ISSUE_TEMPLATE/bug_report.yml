@@ -1,0 +1,24 @@
+name: Bug report
+description: Something in the app or the engine does not work as expected
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: Please use fictional names. Never post real family records.
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened?
+      description: Steps to reproduce, and what you expected instead.
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Heirmap version and build
+      description: Shown under About (the ⓘ button), e.g. 1.0.0+42.3c1224e
+  - type: textarea
+    id: case
+    attributes:
+      label: Minimal case file (optional)
+      description: Export a small fictional case (Export → Case file) and paste or attach it.

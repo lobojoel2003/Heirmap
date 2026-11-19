@@ -1,0 +1,65 @@
+name: Deploy app
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+env:
+  HEIRMAP_BUILD_NUMBER: ${{ github.run_number }}
+
+jobs:
+  build:
+    name: Build the hosted app
+    runs-on: ubuntu-latest
+    outputs:
+      enabled: ${{ steps.pages.outputs.enabled }}
+    steps:
+      - uses: actions/checkout@v5
+      - name: Is GitHub Pages enabled?
+        id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api "repos/${GITHUB_REPOSITORY}/pages" --silent 2>/dev/null; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::GitHub Pages is not enabled. Turn it on in Settings → Pages → Source: GitHub Actions, then re-run this workflow."
+          fi
+      - uses: pnpm/action-setup@v4
+        if: steps.pages.outputs.enabled == 'true'
+      - uses: actions/setup-node@v5
+        if: steps.pages.outputs.enabled == 'true'
+        with:
+          node-version: 22
+          cache: pnpm
+      - if: steps.pages.outputs.enabled == 'true'
+        run: pnpm install --frozen-lockfile
+      - if: steps.pages.outputs.enabled == 'true'
+        run: pnpm --filter @heirmap/web build
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.pages.outputs.enabled == 'true'
+        with:
+          path: apps/web/dist
+
+  deploy:
+    name: Deploy to GitHub Pages
+    needs: build
+    if: needs.build.outputs.enabled == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

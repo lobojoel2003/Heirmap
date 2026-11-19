@@ -1,0 +1,111 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  HEIRMAP_BUILD_NUMBER: ${{ github.run_number }}
+
+jobs:
+  check:
+    name: Lint, typecheck and unit tests (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: ${{ matrix.node }}
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Formatting
+        run: pnpm format:check
+      - name: Lint
+        run: pnpm lint
+      - name: Typecheck
+        run: pnpm typecheck
+      - name: Unit tests with coverage
+        run: pnpm test:coverage
+      - name: Coverage summary
+        if: matrix.node == 22
+        run: node scripts/coverage-summary.mjs >> "$GITHUB_STEP_SUMMARY"
+      - name: Upload coverage
+        if: matrix.node == 22
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: |
+            packages/intestacy/coverage
+            apps/web/coverage
+          retention-days: 14
+
+  build:
+    name: Build and package
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Build library and app
+        run: pnpm build
+      - name: Package
+        run: node scripts/package.mjs
+      - name: Build summary
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          {
+            echo "### Heirmap ${VERSION}+${HEIRMAP_BUILD_NUMBER}.${GITHUB_SHA::7}"
+            echo ""
+            echo "| Artifact | Size |"
+            echo "|---|---|"
+            for f in release/*; do echo "| $(basename "$f") | $(du -h "$f" | cut -f1) |"; done
+          } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: heirmap-build-${{ github.run_number }}
+          path: release/
+          retention-days: 30
+
+  e2e:
+    name: End-to-end tests (Playwright)
+    needs: check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Chromium
+        run: pnpm --filter @heirmap/web exec playwright install --with-deps chromium
+      - name: Build app
+        run: pnpm --filter @heirmap/web build
+      - name: Run Playwright
+        run: pnpm test:e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: apps/web/playwright-report
+          retention-days: 14

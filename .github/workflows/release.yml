@@ -1,0 +1,102 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release, without the leading v (defaults to package.json)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+env:
+  HEIRMAP_BUILD_NUMBER: ${{ github.run_number }}
+
+jobs:
+  release:
+    name: Build, verify and publish the release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: pnpm
+          registry-url: https://registry.npmjs.org
+
+      - name: Resolve version
+        id: version
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            VERSION="${GITHUB_REF_NAME#v}"
+          elif [ -n "${INPUT_VERSION}" ]; then
+            VERSION="${INPUT_VERSION#v}"
+          else
+            VERSION=$(node -p "require('./package.json').version")
+          fi
+          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Releasing v${VERSION} (build ${HEIRMAP_BUILD_NUMBER})"
+
+      - name: Check that package versions match the tag
+        run: node scripts/check-version.mjs "${VERSION}"
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm lint
+      - run: pnpm typecheck
+      - run: pnpm test
+      - name: Build
+        run: pnpm build
+      - name: Package release assets
+        run: node scripts/package.mjs
+      - name: Release notes
+        run: node scripts/release-notes.mjs "${{ steps.version.outputs.version }}" > release-notes.md
+
+      - name: Create the tag (manual runs)
+        if: github.ref_type != 'tag'
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            echo "Tag ${TAG} already exists"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag -a "${TAG}" -m "Heirmap ${TAG}"
+            git push origin "${TAG}"
+          fi
+
+      - name: Publish GitHub release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: Heirmap ${{ steps.version.outputs.tag }}
+          body_path: release-notes.md
+          files: release/*
+          fail_on_unmatched_files: true
+          make_latest: true
+
+      - name: Publish @heirmap/intestacy to npm (when NPM_TOKEN is configured)
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "${NODE_AUTH_TOKEN}" ]; then
+            echo "::notice::NPM_TOKEN is not set; skipping npm publish."
+            exit 0
+          fi
+          cd packages/intestacy
+          pnpm publish --access public --no-git-checks

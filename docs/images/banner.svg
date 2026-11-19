@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 320" width="1280" height="320" role="img" aria-label="Heirmap — untangle heirs' property titles">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#173b2c"/>
+      <stop offset="1" stop-color="#245a43"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="320" rx="24" fill="url(#bg)"/>
+  <g transform="translate(72 96) scale(4)">
+    <rect width="32" height="32" rx="8" fill="#f3efe2" opacity="0.12"/>
+    <path d="M16 10.5v4.5M9 21v-3.5h14V21M16 15v6" fill="none" stroke="#f3efe2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="16" cy="8.5" r="3.2" fill="#f3efe2"/>
+    <circle cx="9" cy="23.2" r="2.7" fill="#e9b44c"/>
+    <circle cx="16" cy="23.2" r="2.7" fill="#f3efe2"/>
+    <circle cx="23" cy="23.2" r="2.7" fill="#7cc4a1"/>
+  </g>
+  <text x="248" y="150" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="72" font-weight="800" fill="#f3efe2" letter-spacing="-1.5">Heirmap</text>
+  <text x="252" y="200" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="28" fill="#cfe3d7">Untangle heirs’ property titles: who inherits, and how much,</text>
+  <text x="252" y="238" font-family="system-ui, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif" font-size="28" fill="#cfe3d7">under the statute in force on each date of death.</text>
+  <g transform="translate(1110 160)">
+    <path d="M0 0 L0 -86 A86 86 0 0 1 81.8 -26.6 Z" fill="#2a78d6" stroke="#245a43" stroke-width="3"/>
+    <path d="M0 0 L81.8 -26.6 A86 86 0 0 1 50.6 69.6 Z" fill="#eb6834" stroke="#245a43" stroke-width="3"/>
+    <path d="M0 0 L50.6 69.6 A86 86 0 0 1 -50.6 69.6 Z" fill="#1baf7a" stroke="#245a43" stroke-width="3"/>
+    <path d="M0 0 L-50.6 69.6 A86 86 0 0 1 -81.8 -26.6 Z" fill="#eda100" stroke="#245a43" stroke-width="3"/>
+    <path d="M0 0 L-81.8 -26.6 A86 86 0 0 1 0 -86 Z" fill="#e87ba4" stroke="#245a43" stroke-width="3"/>
+  </g>
+</svg>

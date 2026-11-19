@@ -1,0 +1,29 @@
+name: Rule correction
+description: A share or rule that does not match the statute
+labels: [rules]
+body:
+  - type: dropdown
+    id: state
+    attributes:
+      label: State
+      options: [Alabama, Georgia, Mississippi, North Carolina, South Carolina, Other]
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Rule version id
+      description: Shown in the Law panel and in each step of the chain of title, e.g. GA-1998
+  - type: textarea
+    id: issue
+    attributes:
+      label: What is wrong, and what should it be?
+    validations:
+      required: true
+  - type: textarea
+    id: authority
+    attributes:
+      label: Authority
+      description: Statute section (with the version in force on the date of death), case law, or other source.
+    validations:
+      required: true

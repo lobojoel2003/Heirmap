@@ -1,0 +1,21 @@
+name: New state or rule version
+description: Ask for, or offer to write, a state module or a historical rule version
+labels: [enhancement, rules]
+body:
+  - type: input
+    id: state
+    attributes:
+      label: State
+    validations:
+      required: true
+  - type: textarea
+    id: periods
+    attributes:
+      label: Periods and statutes
+      description: Which dates of death, and which statute sections applied in each period?
+  - type: checkboxes
+    id: help
+    attributes:
+      label: Contribution
+      options:
+        - label: I can help write or review this module
