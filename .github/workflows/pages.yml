@@ -24,7 +24,7 @@ jobs:
     outputs:
       enabled: ${{ steps.pages.outputs.enabled }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
       - name: Is GitHub Pages enabled?
         id: pages
         env:
