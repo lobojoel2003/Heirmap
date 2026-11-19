@@ -1,0 +1,10 @@
+dist
+coverage
+node_modules
+pnpm-lock.yaml
+LICENSE
+packages/intestacy/LICENSE
+docs/images
+release
+playwright-report
+test-results

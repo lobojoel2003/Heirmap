@@ -1,0 +1,48 @@
+{
+  "name": "heirmap",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Untangle heirs' property titles: a guided family-tree builder and open intestacy rules engine.",
+  "license": "AGPL-3.0-only",
+  "author": "Joel Stain Lobo",
+  "homepage": "https://github.com/lobojoel2003/Heirmap#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lobojoel2003/Heirmap.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lobojoel2003/Heirmap/issues"
+  },
+  "type": "module",
+  "packageManager": "pnpm@10.28.0",
+  "engines": {
+    "node": ">=20.19"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter @heirmap/intestacy build && pnpm --filter @heirmap/web build",
+    "dev": "pnpm --filter @heirmap/intestacy build && pnpm --filter @heirmap/web dev",
+    "test": "pnpm -r test",
+    "test:coverage": "pnpm -r test:coverage",
+    "test:e2e": "pnpm --filter @heirmap/web test:e2e",
+    "typecheck": "pnpm -r typecheck",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test",
+    "screenshots": "pnpm --filter @heirmap/web screenshots",
+    "version:set": "node scripts/set-version.mjs",
+    "release:notes": "node scripts/release-notes.mjs",
+    "package": "node scripts/package.mjs",
+    "version:check": "node scripts/check-version.mjs"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "eslint-plugin-react-refresh": "^0.5.8",
+    "globals": "^17.14.0",
+    "prettier": "^3.10.1",
+    "typescript": "~5.9.3",
+    "typescript-eslint": "^8.73.0"
+  }
+}
