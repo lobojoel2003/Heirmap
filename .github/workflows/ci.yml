@@ -45,7 +45,7 @@ jobs:
         run: node scripts/coverage-summary.mjs >> "$GITHUB_STEP_SUMMARY"
       - name: Upload coverage
         if: matrix.node == 22
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: coverage
           path: |
@@ -79,7 +79,7 @@ jobs:
             echo "|---|---|"
             for f in release/*; do echo "| $(basename "$f") | $(du -h "$f" | cut -f1) |"; done
           } >> "$GITHUB_STEP_SUMMARY"
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: heirmap-build-${{ github.run_number }}
           path: release/
@@ -103,7 +103,7 @@ jobs:
         run: pnpm --filter @heirmap/web build
       - name: Run Playwright
         run: pnpm test:e2e
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: failure()
         with:
           name: playwright-report
